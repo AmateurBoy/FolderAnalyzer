@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32804.467
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FolderAnalyzer", "FolderAnalyzer.csproj", "{3F38A0A9-4954-4134-9E2A-FFE1F2CE75B0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3F38A0A9-4954-4134-9E2A-FFE1F2CE75B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F38A0A9-4954-4134-9E2A-FFE1F2CE75B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F38A0A9-4954-4134-9E2A-FFE1F2CE75B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F38A0A9-4954-4134-9E2A-FFE1F2CE75B0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B65C341B-2566-463B-A376-A406CFBEDB49}
+	EndGlobalSection
+EndGlobal
