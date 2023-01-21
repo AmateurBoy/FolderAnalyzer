@@ -1,4 +1,5 @@
 ﻿using FolderAnalyzer.Service;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Principal;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
@@ -20,8 +22,25 @@ namespace FolderAnalyzer
         public AnalizatorFolder()
         {
             InitializeComponent();
+            comboBox1.Items.Add(10);
+            comboBox1.Items.Add(20);
+            comboBox1.Items.Add(50);
+            comboBox1.Items.Add(100);
+            comboBox2.Items.AddRange(MyInfoFloader.UnitInfo.Select(x=>x.Key.ToString()).ToArray());
         }
-
+        Point LastPoint;
+        private void Form1_MouseDown(object sender, MouseEventArgs e)
+        {
+            LastPoint = new Point(e.X, e.Y);
+        }
+        private void Form1_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                this.Left += e.X - LastPoint.X;
+                this.Top += e.Y - LastPoint.Y;
+            }
+        }
         private void button1_Click(object sender, EventArgs e)
         {
             //Select Folder
@@ -38,41 +57,50 @@ namespace FolderAnalyzer
                 }                
             }
         }
-
+        
         private async void button2_Click(object sender, EventArgs e)
         {
-            const long TestSize = 192890880;
+            
             string path = textBox1.Text;
-            //var test = "D:\\TestDebugRecursion";
-            FolderManager FM = new FolderManager(path);
-            long res = 0;
-            res = await FM.Run(FM.Path);
-
-            listBox1.Items.Add($"Path:{path} Size:{res.ToString()}\n");
-            foreach (var item in FM.Top10SizeFloaders())
+            if (path!=null)
             {
-                listBox1.Items.Add(item);
-            }            
-
-            MessageBox.Show((res).ToString());
+                //var test = "D:\\TestDebugRecursion";
+                FolderManager FM = new FolderManager(path);                
+                if (comboBox1.SelectedItem != null)
+                {
+                    if(comboBox2.SelectedItem==null)
+                    {
+                        comboBox2.SelectedItem = "B";
+                    }
+                    
+                    await FM.Run(FM.Path);
+                    foreach (var item in FM.TopSizeFloaders((int)comboBox1.SelectedItem, (string)comboBox2.SelectedItem))
+                    {
+                        listBox1.Items.Add(item);
+                        
+                    }
+                }
+                else
+                {
+                    listBox1.Items.Add("Выберите размер выборки");
+                }
+            }                
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            var P = Process.GetProcessesByName("devenv");
-            ProcessStartInfo processInfo = new ProcessStartInfo(P[0].ProcessName); //создаем новый процесс
-            processInfo.Verb = "runas"; //в данном случае указываем, что процесс должен быть запущен с правами администратора
-            processInfo.FileName = Application.ExecutablePath; //указываем исполняемый файл (программу) для запуска
-            try
-            {
-                Process.Start(processInfo); //пытаемся запустить процесс
-                MessageBox.Show("Доступ предоставлен");
-            }
-            catch (Win32Exception)
-            {
-                //Ничего не делаем, потому что пользователь, возможно, нажал кнопку "Нет" в ответ на вопрос о запуске программы в окне предупреждения UAC (для Windows 7)
-            }
+            listBox1.Items.Clear();
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
             Application.Exit();
+        }
+
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {            
+            InfoDTO info = JsonConvert.DeserializeObject<InfoDTO>(listBox1.SelectedItem.ToString());
+            Process.Start(info.Name);
         }
     }
 }
