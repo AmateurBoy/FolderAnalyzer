@@ -14,21 +14,76 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using ThreadState = System.Threading.ThreadState;
 
 namespace FolderAnalyzer
 {
     public partial class AnalizatorFolder : Form
     {
+        public FolderManager folderManager;
+        public SynchronizationContext context;
+        Point LastPoint;
+
+
         public AnalizatorFolder()
         {
             InitializeComponent();
-            comboBox1.Items.Add(10);
-            comboBox1.Items.Add(20);
-            comboBox1.Items.Add(50);
-            comboBox1.Items.Add(100);
-            comboBox2.Items.AddRange(MyInfoFloader.UnitInfo.Select(x=>x.Key.ToString()).ToArray());
+            InitializeSelectingNumberElements();
+            InitializeUnitList();
+            //Defolde Select
+            SelectingNumberElements.SelectedItem = 100; //SelectRange
+            UnitList.SelectedItem = "mB";//Unit
+            textBox1.Text = "D:\\";       //Path
         }
-        Point LastPoint;
+        private void InitializeSelectingNumberElements()
+        {
+            SelectingNumberElements.Items.Add(10);
+            SelectingNumberElements.Items.Add(20);
+            SelectingNumberElements.Items.Add(50);
+            SelectingNumberElements.Items.Add(100);
+            SelectingNumberElements.Items.Add(300);
+            SelectingNumberElements.Items.Add(500);
+        }
+        private void InitializeUnitList()
+        {
+            UnitList.Items.AddRange(BiteTransform.UnitInfo.Select(x => x.Key.ToString()).ToArray());
+        }
+        protected void ChangeTextStatus()
+        {
+            if (StatusText.Text.Equals("Stop"))
+            {
+                StatusText.Text = "Start";
+                StatusText.ForeColor = Color.Green;
+            }
+            else
+            {
+                StatusText.Text = "Stop";
+                StatusText.ForeColor = Color.DarkRed;
+            }            
+        }
+        protected void PaintElement()
+        {
+            if (SelectingNumberElements.SelectedItem != null)
+            {
+                if (UnitList.SelectedItem == null)
+                {
+                    UnitList.SelectedItem = "B";
+                }
+
+                foreach (var item in folderManager.TopSizeFloaders((int)SelectingNumberElements.SelectedItem, (string)UnitList.SelectedItem))
+                {
+                    MainList.Items.Add(item);
+
+                }
+            }
+            else
+            {
+                MainList.Items.Add("Выберите размер выборки");
+            }
+            CountSecret.Text = folderManager.GetCountSecret().ToString();            
+            folderManager.Dispose();
+            folderManager = null;
+        }
         private void Form1_MouseDown(object sender, MouseEventArgs e)
         {
             LastPoint = new Point(e.X, e.Y);
@@ -54,53 +109,47 @@ namespace FolderAnalyzer
                     if (path != "" || path != null) textBox1.Text = path;
                     else
                         textBox1.Text = "Not Found";
-                }                
+                }
             }
-        }
-        
-        private async void button2_Click(object sender, EventArgs e)
+        }        
+        private async void Analiz_Click(object sender, EventArgs e)
         {
-            
+            MainList.Items.Clear();
+            CountSecret.Text = "0";
+            context = SynchronizationContext.Current;            
             string path = textBox1.Text;
-            if (path!=null)
+            if (!string.IsNullOrWhiteSpace(path))
             {
                 //var test = "D:\\TestDebugRecursion";
-                FolderManager FM = new FolderManager(path);                
-                if (comboBox1.SelectedItem != null)
+                folderManager = new FolderManager(path);
+                Task task = new Task(async () =>
                 {
-                    if(comboBox2.SelectedItem==null)
-                    {
-                        comboBox2.SelectedItem = "B";
-                    }
-                    
-                    await FM.Run(FM.Path);
-                    foreach (var item in FM.TopSizeFloaders((int)comboBox1.SelectedItem, (string)comboBox2.SelectedItem))
-                    {
-                        listBox1.Items.Add(item);
-                        
-                    }
-                }
-                else
-                {
-                    listBox1.Items.Add("Выберите размер выборки");
-                }
-            }                
+                    context.Post(x => ChangeTextStatus(), null);
+                    folderManager.Run();
+                    context.Post(x=> PaintElement(), null);
+                    context.Post(x => ChangeTextStatus(), null);
+                });
+                task.Start();
+            }
+            else
+            {
+                MainList.Items.Add("Путь пустой");
+            }
         }
-
-        private void button3_Click(object sender, EventArgs e)
+        private void Clear_Click(object sender, EventArgs e)
         {
-            listBox1.Items.Clear();
+            MainList.Items.Clear();
+            CountSecret.Text = "0";
         }
-
-        private void button4_Click(object sender, EventArgs e)
+        private void Exit_Click(object sender, EventArgs e)
         {
             Application.Exit();
         }
-
-        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        private void SelectdItem_Path_List(object sender, EventArgs e)
         {            
-            InfoDTO info = JsonConvert.DeserializeObject<InfoDTO>(listBox1.SelectedItem.ToString());
+            InfoDTO info = JsonConvert.DeserializeObject<InfoDTO>(MainList.SelectedItem.ToString());
             Process.Start(info.Name);
         }
+
     }
 }

@@ -10,18 +10,26 @@ using System.Xml.Linq;
 
 namespace FolderAnalyzer.Service
 {
-    public class FolderManager
+    public class FolderManager : IDisposable
     {
         public readonly string Path;
         public List<MyInfoFloader> directories = new List<MyInfoFloader>();
-        
+        public int SecretFloader = 0;
+        public void Run()
+        {
+            if (!String.IsNullOrWhiteSpace(Path))
+            {
+                SecretFloader = 0;
+                WorkFind(Path);
+            }            
+        }
         public FolderManager(string path)
         {
-            Path = path;
-            
+            Path = path;            
         }
-        public async Task<MyInfoFloader> Run(string path)
+        public MyInfoFloader WorkFind(string path)
         {
+            
             MyInfoFloader floader = null;
             long res = 0;
             try
@@ -33,7 +41,7 @@ namespace FolderAnalyzer.Service
 
                 foreach (var directory in TopDirectory) //Получения дочерней папки с собсвенім размером.
                 {
-                    MyInfoFloader myInfoFloader = await Run(directory.FullName);
+                    MyInfoFloader myInfoFloader = WorkFind(directory.FullName);
                     floader.Size += myInfoFloader.Size;            
                 }                
                 foreach (var file in ThisFileDirectory)
@@ -45,6 +53,7 @@ namespace FolderAnalyzer.Service
             }
             catch
             {
+                SecretFloader += 1;
                 return floader;
             }
         }
@@ -79,6 +88,14 @@ namespace FolderAnalyzer.Service
             return strings;
            
         }
-        
+        public int GetCountSecret()
+        {
+            return SecretFloader;
+        }
+
+        public void Dispose()
+        {
+            directories = null;
+        }
     }
 }
