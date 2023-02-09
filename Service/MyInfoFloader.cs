@@ -7,21 +7,36 @@ using System.Threading.Tasks;
 
 namespace FolderAnalyzer.Service
 {
+    public static class BiteTransform
+    {
+        public static Dictionary<string, double> UnitInfo = new Dictionary<string, double>()
+        {
+            {"B",0},
+            {"kB",1},
+            {"mB",2},
+            {"gB",3},
+            {"tiB",4},
+            {"piB",5},
+        };
+    }
     public class MyInfoFloader
     {        
+        
         public DirectoryInfo directories;
         public long Size = 0;
-        public decimal MdSize = 0;
-        const decimal Mb = 9.4297943115234m;
+        public int countsecret = 0;
+
         public MyInfoFloader(DirectoryInfo directories, long size)
         {
             this.directories = directories;
-            Size = size;            
-        }
-        public void BiteToMbite()
+            Size = size;  
+            
+        } 
+        public double ConvertBite(string Unit)
         {
-            if(Size!=0)
-            MdSize = Mb / Size;
-        }
+            double result = 0;
+            result = Size / Math.Pow(1024,BiteTransform.UnitInfo[Unit]);
+            return result;
+        }        
     }
 }

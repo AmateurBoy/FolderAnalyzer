@@ -1,4 +1,5 @@
 ﻿using FolderAnalyzer.Service;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,19 +10,92 @@ using System.IO;
 using System.Linq;
 using System.Security.Principal;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using ThreadState = System.Threading.ThreadState;
 
 namespace FolderAnalyzer
 {
     public partial class AnalizatorFolder : Form
     {
+        public FolderManager folderManager;
+        public SynchronizationContext context;
+        Point LastPoint;
+
+
         public AnalizatorFolder()
         {
             InitializeComponent();
+            InitializeSelectingNumberElements();
+            InitializeUnitList();
+            //Defolde Select
+            SelectingNumberElements.SelectedItem = 100; //SelectRange
+            UnitList.SelectedItem = "mB";//Unit
+            textBox1.Text = "D:\\";       //Path
         }
+        private void InitializeSelectingNumberElements()
+        {
+            SelectingNumberElements.Items.Add(10);
+            SelectingNumberElements.Items.Add(20);
+            SelectingNumberElements.Items.Add(50);
+            SelectingNumberElements.Items.Add(100);
+            SelectingNumberElements.Items.Add(300);
+            SelectingNumberElements.Items.Add(500);
+        }
+        private void InitializeUnitList()
+        {
+            UnitList.Items.AddRange(BiteTransform.UnitInfo.Select(x => x.Key.ToString()).ToArray());
+        }
+        protected void ChangeTextStatus()
+        {
+            if (StatusText.Text.Equals("Stop"))
+            {
+                StatusText.Text = "Start";
+                StatusText.ForeColor = Color.Green;
+            }
+            else
+            {
+                StatusText.Text = "Stop";
+                StatusText.ForeColor = Color.DarkRed;
+            }            
+        }
+        protected void PaintElement()
+        {
+            if (SelectingNumberElements.SelectedItem != null)
+            {
+                if (UnitList.SelectedItem == null)
+                {
+                    UnitList.SelectedItem = "B";
+                }
 
+                foreach (var item in folderManager.TopSizeFloaders((int)SelectingNumberElements.SelectedItem, (string)UnitList.SelectedItem))
+                {
+                    MainList.Items.Add(item);
+
+                }
+            }
+            else
+            {
+                MainList.Items.Add("Выберите размер выборки");
+            }
+            CountSecret.Text = folderManager.GetCountSecret().ToString();            
+            folderManager.Dispose();
+            folderManager = null;
+        }
+        private void Form1_MouseDown(object sender, MouseEventArgs e)
+        {
+            LastPoint = new Point(e.X, e.Y);
+        }
+        private void Form1_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                this.Left += e.X - LastPoint.X;
+                this.Top += e.Y - LastPoint.Y;
+            }
+        }
         private void button1_Click(object sender, EventArgs e)
         {
             //Select Folder
@@ -35,44 +109,47 @@ namespace FolderAnalyzer
                     if (path != "" || path != null) textBox1.Text = path;
                     else
                         textBox1.Text = "Not Found";
-                }                
+                }
             }
-        }
-
-        private async void button2_Click(object sender, EventArgs e)
+        }        
+        private async void Analiz_Click(object sender, EventArgs e)
         {
-            const long TestSize = 192890880;
+            MainList.Items.Clear();
+            CountSecret.Text = "0";
+            context = SynchronizationContext.Current;            
             string path = textBox1.Text;
-            //var test = "D:\\TestDebugRecursion";
-            FolderManager FM = new FolderManager(path);
-            long res = 0;
-            res = await FM.Run(FM.Path);
-
-            listBox1.Items.Add($"Path:{path} Size:{res.ToString()}\n");
-            foreach (var item in FM.Top10SizeFloaders())
+            if (!string.IsNullOrWhiteSpace(path))
             {
-                listBox1.Items.Add(item);
-            }            
-
-            MessageBox.Show((res).ToString());
+                //var test = "D:\\TestDebugRecursion";
+                folderManager = new FolderManager(path);
+                Task task = new Task(async () =>
+                {
+                    context.Post(x => ChangeTextStatus(), null);
+                    folderManager.Run();
+                    context.Post(x=> PaintElement(), null);
+                    context.Post(x => ChangeTextStatus(), null);
+                });
+                task.Start();
+            }
+            else
+            {
+                MainList.Items.Add("Путь пустой");
+            }
         }
-
-        private void button3_Click(object sender, EventArgs e)
+        private void Clear_Click(object sender, EventArgs e)
         {
-            var P = Process.GetProcessesByName("devenv");
-            ProcessStartInfo processInfo = new ProcessStartInfo(P[0].ProcessName); //создаем новый процесс
-            processInfo.Verb = "runas"; //в данном случае указываем, что процесс должен быть запущен с правами администратора
-            processInfo.FileName = Application.ExecutablePath; //указываем исполняемый файл (программу) для запуска
-            try
-            {
-                Process.Start(processInfo); //пытаемся запустить процесс
-                MessageBox.Show("Доступ предоставлен");
-            }
-            catch (Win32Exception)
-            {
-                //Ничего не делаем, потому что пользователь, возможно, нажал кнопку "Нет" в ответ на вопрос о запуске программы в окне предупреждения UAC (для Windows 7)
-            }
+            MainList.Items.Clear();
+            CountSecret.Text = "0";
+        }
+        private void Exit_Click(object sender, EventArgs e)
+        {
             Application.Exit();
         }
+        private void SelectdItem_Path_List(object sender, EventArgs e)
+        {            
+            InfoDTO info = JsonConvert.DeserializeObject<InfoDTO>(MainList.SelectedItem.ToString());
+            Process.Start(info.Name);
+        }
+
     }
 }
