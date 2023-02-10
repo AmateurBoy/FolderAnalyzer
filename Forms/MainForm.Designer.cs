@@ -43,6 +43,8 @@
             this.UnitList = new System.Windows.Forms.ComboBox();
             this.CountSecret = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -64,7 +66,7 @@
             this.textBox1.Location = new System.Drawing.Point(12, 411);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(870, 34);
-            this.textBox1.TabIndex = 1;            
+            this.textBox1.TabIndex = 1;
             // 
             // button1
             // 
@@ -74,7 +76,7 @@
             this.button1.TabIndex = 2;
             this.button1.Text = "Select File";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.button1.Click += new System.EventHandler(this.SelectFolder_Click);
             // 
             // button2
             // 
@@ -97,7 +99,7 @@
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.Clear_Click);
             // 
-            // listBox1
+            // MainList
             // 
             this.MainList.BackColor = System.Drawing.SystemColors.WindowFrame;
             this.MainList.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -107,17 +109,17 @@
             this.MainList.HorizontalScrollbar = true;
             this.MainList.ItemHeight = 29;
             this.MainList.Location = new System.Drawing.Point(12, 44);
-            this.MainList.Name = "listBox1";
+            this.MainList.Name = "MainList";
             this.MainList.ScrollAlwaysVisible = true;
             this.MainList.Size = new System.Drawing.Size(1033, 319);
             this.MainList.TabIndex = 6;
             this.MainList.SelectedIndexChanged += new System.EventHandler(this.SelectdItem_Path_List);
             // 
-            // comboBox1
+            // SelectingNumberElements
             // 
             this.SelectingNumberElements.FormattingEnabled = true;
             this.SelectingNumberElements.Location = new System.Drawing.Point(136, 456);
-            this.SelectingNumberElements.Name = "comboBox1";
+            this.SelectingNumberElements.Name = "SelectingNumberElements";
             this.SelectingNumberElements.Size = new System.Drawing.Size(271, 24);
             this.SelectingNumberElements.TabIndex = 7;
             // 
@@ -165,12 +167,12 @@
             this.label4.TabIndex = 12;
             this.label4.Text = "Единица измерения:";
             // 
-            // comboBox2
+            // UnitList
             // 
             this.UnitList.FormattingEnabled = true;
             this.UnitList.Location = new System.Drawing.Point(746, 456);
             this.UnitList.Margin = new System.Windows.Forms.Padding(6, 3, 3, 3);
-            this.UnitList.Name = "comboBox2";
+            this.UnitList.Name = "UnitList";
             this.UnitList.Size = new System.Drawing.Size(88, 24);
             this.UnitList.TabIndex = 11;
             // 
@@ -196,12 +198,25 @@
             this.label6.TabIndex = 13;
             this.label6.Text = "Скрытых папок которые не вошли в анализ:";
             // 
+            // pictureBox1
+            // 
+            this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.pictureBox1.Image = global::FolderAnalyzer.Properties.Resources.LoadingMain;
+            this.pictureBox1.InitialImage = global::FolderAnalyzer.Properties.Resources.LoadingMain;
+            this.pictureBox1.Location = new System.Drawing.Point(12, 485);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(64, 66);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox1.TabIndex = 16;
+            this.pictureBox1.TabStop = false;
+            // 
             // AnalizatorFolder
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(60)))), ((int)(((byte)(60)))));
             this.ClientSize = new System.Drawing.Size(1057, 553);
+            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.CountSecret);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label4);
@@ -216,10 +231,10 @@
             this.Controls.Add(this.button1);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.label1);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "AnalizatorFolder";
             this.Text = "FolderAnalyer";
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -241,6 +256,7 @@
         private System.Windows.Forms.ComboBox UnitList;
         private System.Windows.Forms.Label CountSecret;
         private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.PictureBox pictureBox1;
     }
 }
 

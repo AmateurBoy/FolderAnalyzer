@@ -15,7 +15,7 @@ namespace FolderAnalyzer.Service
         public readonly string Path;
         public List<MyInfoFloader> directories = new List<MyInfoFloader>();
         public int SecretFloader = 0;
-        public void Run()
+        public async Task Run()
         {
             if (!String.IsNullOrWhiteSpace(Path))
             {

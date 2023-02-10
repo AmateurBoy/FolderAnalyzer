@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Security.Principal;
@@ -22,15 +23,15 @@ namespace FolderAnalyzer
     {
         public FolderManager folderManager;
         public SynchronizationContext context;
+        public bool Work = false;
         Point LastPoint;
-
-
         public AnalizatorFolder()
         {
             InitializeComponent();
             InitializeSelectingNumberElements();
             InitializeUnitList();
             //Defolde Select
+            pictureBox1.Visible = false;
             SelectingNumberElements.SelectedItem = 100; //SelectRange
             UnitList.SelectedItem = "mB";//Unit
             textBox1.Text = "D:\\";       //Path
@@ -83,6 +84,18 @@ namespace FolderAnalyzer
             CountSecret.Text = folderManager.GetCountSecret().ToString();            
             folderManager.Dispose();
             folderManager = null;
+        }        
+        public async void Animations()
+        {   
+            pictureBox1.Visible = true;
+                while (Work)
+                {
+                    await Task.Delay(500);
+                    Image img = pictureBox1.Image;
+                    img.RotateFlip(RotateFlipType.Rotate270FlipXY);
+                    pictureBox1.Image = img;
+                }
+                pictureBox1.Visible = false;
         }
         private void Form1_MouseDown(object sender, MouseEventArgs e)
         {
@@ -96,7 +109,7 @@ namespace FolderAnalyzer
                 this.Top += e.Y - LastPoint.Y;
             }
         }
-        private void button1_Click(object sender, EventArgs e)
+        private void SelectFolder_Click(object sender, EventArgs e)
         {
             //Select Folder
             using (var folderDialog = new FolderBrowserDialog())
@@ -115,21 +128,28 @@ namespace FolderAnalyzer
         private async void Analiz_Click(object sender, EventArgs e)
         {
             MainList.Items.Clear();
-            CountSecret.Text = "0";
-            context = SynchronizationContext.Current;            
+            CountSecret.Text = "0";                      
             string path = textBox1.Text;
             if (!string.IsNullOrWhiteSpace(path))
             {
+                context = SynchronizationContext.Current;
                 //var test = "D:\\TestDebugRecursion";
                 folderManager = new FolderManager(path);
                 Task task = new Task(async () =>
                 {
-                    context.Post(x => ChangeTextStatus(), null);
-                    folderManager.Run();
+                    Work = true;                    
+                    context.Post(x => ChangeTextStatus(), null);                                                          
+                    await folderManager.Run();                    
                     context.Post(x=> PaintElement(), null);
                     context.Post(x => ChangeTextStatus(), null);
+                    Work = false;
                 });
                 task.Start();
+                var task1 = new Task(async () =>
+                {
+                    context.Post(x =>Animations(), null);
+                });
+                task1.Start();
             }
             else
             {
@@ -150,6 +170,6 @@ namespace FolderAnalyzer
             InfoDTO info = JsonConvert.DeserializeObject<InfoDTO>(MainList.SelectedItem.ToString());
             Process.Start(info.Name);
         }
-
+       
     }
 }
