@@ -1,0 +1,2 @@
+DataTime||Log||User
+10.02.2023 20:38:24||Приложение запушено удачно.||DESKTOP-DJG3GC6\march

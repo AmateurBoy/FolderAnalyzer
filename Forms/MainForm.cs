@@ -1,4 +1,5 @@
 ﻿using FolderAnalyzer.Service;
+using FolderAnalyzer.Service.Loger;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace FolderAnalyzer
     public partial class AnalizatorFolder : Form
     {
         public FolderManager folderManager;
-        public SynchronizationContext context;
+        public SynchronizationContext context;        
         public bool Work = false;
         Point LastPoint;
         public AnalizatorFolder()
@@ -35,6 +36,7 @@ namespace FolderAnalyzer
             SelectingNumberElements.SelectedItem = 100; //SelectRange
             UnitList.SelectedItem = "mB";//Unit
             textBox1.Text = "D:\\";       //Path
+            Loger.CreateLog("Приложение запушено удачно.");
         }
         private void InitializeSelectingNumberElements()
         {
@@ -127,6 +129,8 @@ namespace FolderAnalyzer
         }        
         private async void Analiz_Click(object sender, EventArgs e)
         {
+            Loger.CreateLog("Запушен Анализ");
+            AnalizButton.Visible = false;
             MainList.Items.Clear();
             CountSecret.Text = "0";                      
             string path = textBox1.Text;
@@ -142,6 +146,7 @@ namespace FolderAnalyzer
                     await folderManager.Run();                    
                     context.Post(x=> PaintElement(), null);
                     context.Post(x => ChangeTextStatus(), null);
+                    context.Post(x => AnalizButton.Visible = true, null);
                     Work = false;
                 });
                 task.Start();
@@ -166,10 +171,19 @@ namespace FolderAnalyzer
             Application.Exit();
         }
         private void SelectdItem_Path_List(object sender, EventArgs e)
-        {            
-            InfoDTO info = JsonConvert.DeserializeObject<InfoDTO>(MainList.SelectedItem.ToString());
-            Process.Start(info.Name);
+        {
+            try
+            {
+                InfoDTO info = JsonConvert.DeserializeObject<InfoDTO>(MainList.SelectedItem.ToString());
+                Process.Start(info.Name);
+            }
+            catch
+            {
+                MessageBox.Show("Произошла ошибка пути.");                
+            }
+            
         }
+
        
     }
 }
