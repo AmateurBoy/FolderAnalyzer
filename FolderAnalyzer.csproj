@@ -61,6 +61,7 @@
     <Compile Include="DTO\InfoDTO.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Service\BiteTransform.cs" />
     <Compile Include="Service\FolderManager.cs" />
     <Compile Include="Service\Loger\Loger.cs" />
     <Compile Include="Service\MyInfoFloader.cs" />

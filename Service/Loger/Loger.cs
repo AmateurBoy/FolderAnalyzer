@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace FolderAnalyzer.Service.Loger
 {
-    public static class Loger
+    public static class Logger
     {
-        static FileInfo File = new FileInfo(@"C:\\C#\\FolderAnalyzer\\Service\\Loger\\log.txt");
+        static FileInfo File = new FileInfo(@"C:\Users\march\Desktop\log.txt");
         public static void CreateLog(string logText)
         {
             DateTime dateTime = DateTime.Now;

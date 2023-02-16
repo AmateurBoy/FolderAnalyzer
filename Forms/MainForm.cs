@@ -36,7 +36,7 @@ namespace FolderAnalyzer
             SelectingNumberElements.SelectedItem = 100; //SelectRange
             UnitList.SelectedItem = "mB";//Unit
             textBox1.Text = "D:\\";       //Path
-            Loger.CreateLog("Приложение запушено удачно.");
+            Logger.CreateLog("Приложение запушено удачно.");
         }
         private void InitializeSelectingNumberElements()
         {
@@ -129,7 +129,7 @@ namespace FolderAnalyzer
         }        
         private async void Analiz_Click(object sender, EventArgs e)
         {
-            Loger.CreateLog("Запушен Анализ");
+            Logger.CreateLog("Запушен Анализ");
             AnalizButton.Visible = false;
             MainList.Items.Clear();
             CountSecret.Text = "0";                      
@@ -174,12 +174,16 @@ namespace FolderAnalyzer
         {
             try
             {
+                var logResult = "Попытка зайти в папку -> ";                
                 InfoDTO info = JsonConvert.DeserializeObject<InfoDTO>(MainList.SelectedItem.ToString());
+                logResult += info.Name;
                 Process.Start(info.Name);
+                Logger.CreateLog($"Успешно зашли в папку:{info.Name}");                
             }
             catch
-            {
-                MessageBox.Show("Произошла ошибка пути.");                
+            {                
+                MessageBox.Show("Произошла ошибка пути.");
+                Logger.CreateLog("Произошла ошибка пути.");
             }
             
         }
